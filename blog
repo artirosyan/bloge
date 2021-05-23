@@ -1,0 +1,262 @@
+package blog;
+
+public interface Commands1 {
+    int EXIT = 0;
+    int ADD_POST = 1;
+    int SEARCH_POST = 2;
+    int POST_BY_CATEGORY = 3;
+    int ALL_POST = 4;
+
+    static void printcommands1(){
+        System.out.println("Please input " + EXIT + " for EXIT");
+        System.out.println("Please input " + ADD_POST + " for ADD_POST");
+        System.out.println("Please input " + SEARCH_POST + " for SEARCH_POST ");
+        System.out.println("Please input " + POST_BY_CATEGORY + " for POST_BY_CATEGORY");
+        System.out.println("Please input " + ALL_POST + " for ALL_POST");
+    }
+}
+
+
+
+package blog;
+
+
+import java.util.Date;
+
+public class Post {
+    private String title;
+    private String text;
+    private String category;
+    private Date createdDate;
+
+
+    public Post(String title, String text, String category, Date createdDate) {
+        this.title = title;
+        this.text = text;
+        this.category = category;
+        this.createdDate = createdDate;
+
+    }
+
+    public Post() {
+
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public Date getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    @Override
+    public String toString() {
+        return "Post{" +
+                "title='" + title + '\'' +
+                ", text='" + text + '\'' +
+                ", category='" + category + '\'' +
+                ", createdDate=" + createdDate +
+                '}';
+    }
+}
+
+
+package blog;
+
+public class PostNotFoundException extends Exception{
+    public PostNotFoundException() {
+        super();
+    }
+
+    public PostNotFoundException(String message) {
+        super(message);
+    }
+
+    public PostNotFoundException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public PostNotFoundException(Throwable cause) {
+        super(cause);
+    }
+
+    protected PostNotFoundException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+    }
+}
+
+package blog;
+
+public class PostStorage {
+
+    private Post[] posts = new Post[10];
+    private int size = 0;
+
+    public void add(Post author) {
+        if (size == posts.length) {
+            extend();
+        }
+        posts[size++] = author;
+    }
+
+    private void extend() {
+        Post[] temp = new Post[posts.length + 10];
+        System.arraycopy(posts, 0, temp, 0, posts.length);
+        posts = temp;
+    }
+
+    public void print() {
+        for (int i = 0; i < size; i++) {
+            System.out.println(posts[i]);
+        }
+    }
+
+    void searchPostsByKeyword(String keyword) {
+        for (int i = 0; i < size; i++) {
+            Post post = this.posts[i];
+            if (post.getText().contains(keyword) || post.getTitle().contains(keyword)) {
+                System.out.println(post);
+            }
+        }
+    }
+
+
+    public Post getPostByTitle(String title) throws PostNotFoundException {
+
+        for (int i = 0; i < size; i++) {
+            Post post = this.posts[i];
+            if (posts[i].getTitle().contains(title)) {
+                return post;
+            }
+        }
+        throw new PostNotFoundException("Post with" + title + " does not exists");
+    }
+
+    public void printPostByCategoty(String category) {
+        for (int i = 0; i < size; i++) {
+         Post post = this.posts[i];
+         if (post.getCategory().contains(category)){
+             System.out.println(post);
+         }
+            }
+        }
+    }
+
+
+
+
+
+package blog;
+
+import java.util.Date;
+import java.util.Scanner;
+
+public class PostTest implements Commands1 {
+
+    static Scanner scanner = new Scanner(System.in);
+    static PostStorage postStorage = new PostStorage();
+
+    public static void main(String[] args) {
+
+        boolean run = true;
+        while (run) {
+            Commands1.printcommands1();
+            int command;
+
+            try {
+                command = Integer.parseInt(scanner.nextLine());
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+                command = -1;
+            }
+            switch (command) {
+                case EXIT:
+                    run = false;
+                    break;
+                case ADD_POST:
+                    addPost();
+                    break;
+                case SEARCH_POST:
+                    searchPostsByKeyword();
+                    break;
+                case POST_BY_CATEGORY:
+                    printPostByCategoty();
+                    break;
+                case ALL_POST:
+                    postStorage.print();
+                    break;
+                default:
+                    System.out.println("wrong command");
+            }
+        }
+    }
+
+    private static void printPostByCategoty() {
+        System.out.println("Please input category");
+        String catehory = scanner.nextLine();
+        postStorage.printPostByCategoty(catehory);
+    }
+
+
+    private static void searchPostsByKeyword() {
+        System.out.println("Please input Keyword");
+        String keyword = scanner.nextLine();
+        postStorage.searchPostsByKeyword(keyword);
+        Post post = null;
+        try {
+            post = postStorage.getPostByTitle(keyword);
+            System.out.println(post);
+        } catch (PostNotFoundException l) {
+            System.err.println(l.getMessage());
+        }
+
+    }
+
+    private static void addPost() {
+
+
+        System.out.println("please input post's data.");
+        Post post = new Post();
+        System.out.println("please input post's title");
+        post.setTitle(scanner.nextLine());
+        System.out.println("please input post's text");
+        post.setText(scanner.nextLine());
+        System.out.println("please input post's category");
+        post.setCategory(scanner.nextLine());
+
+        post.setCreatedDate(new Date());
+        postStorage.add(post);
+    }
+
+}
+
+
+
+
+
+
